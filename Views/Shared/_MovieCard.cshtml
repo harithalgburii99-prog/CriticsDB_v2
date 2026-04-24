@@ -1,0 +1,28 @@
+@model MovieListViewModel
+
+<a class="movie-card" asp-controller="Movies" asp-action="Details" asp-route-id="@Model.Id">
+    <div class="movie-card-poster">
+        @if (!string.IsNullOrEmpty(Model.PosterUrl))
+        {
+            <img src="@Model.PosterUrl" alt="@Model.Title" loading="lazy" onerror="this.src='/images/no-poster.svg'" />
+        }
+        else
+        {
+            <div class="no-poster"><i class="fas fa-film"></i></div>
+        }
+        <div class="movie-card-overlay">
+            <div class="card-rating-badge">
+                <i class="fas fa-star"></i>
+                @(Model.AverageRating > 0 ? Model.AverageRating.ToString("F1") : "—")
+            </div>
+        </div>
+    </div>
+    <div class="movie-card-info">
+        <span class="card-genre">@Model.Genre</span>
+        <h3 class="card-title">@Model.Title</h3>
+        <div class="card-meta">
+            <span><i class="fas fa-calendar"></i> @Model.ReleaseDate.Year</span>
+            <span><i class="fas fa-comment"></i> @Model.ReviewCount</span>
+        </div>
+    </div>
+</a>

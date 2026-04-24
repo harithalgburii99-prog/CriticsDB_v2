@@ -1,0 +1,95 @@
+@model List<MovieListViewModel>
+@{
+    ViewData["Title"] = "Manage Movies";
+}
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand"><i class="fas fa-shield-halved"></i> Admin Panel</div>
+        <nav class="admin-nav">
+            <a asp-action="Index" class="admin-nav-link"><i class="fas fa-gauge-high"></i> Dashboard</a>
+            <a asp-action="Movies" class="admin-nav-link active"><i class="fas fa-film"></i> Movies</a>
+            <a asp-action="Reviews" class="admin-nav-link"><i class="fas fa-comments"></i> Reviews</a>
+            <a asp-action="Users" class="admin-nav-link"><i class="fas fa-users"></i> Users</a>
+            <div class="admin-nav-divider"></div>
+            <a asp-controller="Home" asp-action="Index" class="admin-nav-link"><i class="fas fa-arrow-left"></i> Back to Site</a>
+        </nav>
+    </aside>
+
+    <div class="admin-main">
+        <div class="admin-topbar">
+            <h1 class="admin-page-title">Movies</h1>
+            <a asp-action="CreateMovie" class="btn-primary"><i class="fas fa-plus"></i> Add Movie</a>
+        </div>
+
+        <div class="admin-panel">
+            <form asp-action="Movies" method="get" class="admin-search-bar">
+                <div class="input-icon-wrap">
+                    <i class="fas fa-search input-icon"></i>
+                    <input type="text" name="search" value="@ViewBag.Search" placeholder="Search movies..." class="form-input" />
+                </div>
+                <button type="submit" class="btn-filter">Search</button>
+            </form>
+
+            <table class="admin-table admin-table-full">
+                <thead>
+                    <tr>
+                        <th>Poster</th><th>Title</th><th>Genre</th><th>Year</th>
+                        <th>Rating</th><th>Reviews</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var m in Model)
+                    {
+                        <tr>
+                            <td>
+                                @if (!string.IsNullOrEmpty(m.PosterUrl))
+                                {
+                                    <img src="@m.PosterUrl" class="tbl-poster" alt="@m.Title"
+                                         onerror="this.style.display='none'" />
+                                }
+                                else
+                                {
+                                    <div class="tbl-no-poster"><i class="fas fa-film"></i></div>
+                                }
+                            </td>
+                            <td><a asp-controller="Movies" asp-action="Details" asp-route-id="@m.Id">@m.Title</a></td>
+                            <td><span class="genre-tag-sm">@m.Genre</span></td>
+                            <td>@m.ReleaseDate.Year</td>
+                            <td>
+                                <span class="rating-badge-sm">
+                                    <i class="fas fa-star"></i>
+                                    @(m.AverageRating > 0 ? m.AverageRating.ToString("F1") : "—")
+                                    (@m.RatingCount)
+                                </span>
+                            </td>
+                            <td>@m.ReviewCount</td>
+                            <td class="tbl-actions">
+                                <a asp-action="EditMovie" asp-route-id="@m.Id" class="tbl-btn-edit">
+                                    <i class="fas fa-pen"></i> Edit
+                                </a>
+                                <form asp-action="DeleteMovie" method="post" class="inline-form"
+                                      onsubmit="return confirm('Delete @m.Title and all its data?')">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@m.Id" />
+                                    <button type="submit" class="tbl-btn-del"><i class="fas fa-trash"></i> Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if ((int)ViewBag.TotalPages > 1)
+            {
+                <div class="pagination">
+                    @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                    {
+                        <a asp-action="Movies" asp-route-page="@i" asp-route-search="@ViewBag.Search"
+                           class="page-btn @(i == (int)ViewBag.Page ? "active" : "")">@i</a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

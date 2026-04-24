@@ -1,0 +1,101 @@
+@model MovieFormViewModel
+@{
+    ViewData["Title"] = "Add Movie";
+}
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand"><i class="fas fa-shield-halved"></i> Admin Panel</div>
+        <nav class="admin-nav">
+            <a asp-action="Index" class="admin-nav-link"><i class="fas fa-gauge-high"></i> Dashboard</a>
+            <a asp-action="Movies" class="admin-nav-link active"><i class="fas fa-film"></i> Movies</a>
+            <a asp-action="Reviews" class="admin-nav-link"><i class="fas fa-comments"></i> Reviews</a>
+            <a asp-action="Users" class="admin-nav-link"><i class="fas fa-users"></i> Users</a>
+            <div class="admin-nav-divider"></div>
+            <a asp-controller="Home" asp-action="Index" class="admin-nav-link"><i class="fas fa-arrow-left"></i> Back to Site</a>
+        </nav>
+    </aside>
+
+    <div class="admin-main">
+        <div class="admin-topbar">
+            <h1 class="admin-page-title"><i class="fas fa-plus"></i> Add New Movie</h1>
+        </div>
+
+        <div class="admin-panel form-panel">
+            <form asp-action="CreateMovie" method="post">
+                @Html.AntiForgeryToken()
+                <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label asp-for="Title">Title *</label>
+                        <input asp-for="Title" class="form-input" />
+                        <span asp-validation-for="Title" class="field-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="Director">Director</label>
+                        <input asp-for="Director" class="form-input" />
+                        <span asp-validation-for="Director" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="Description">Description *</label>
+                    <textarea asp-for="Description" class="form-textarea" rows="4"></textarea>
+                    <span asp-validation-for="Description" class="field-error"></span>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label asp-for="Genre">Genre *</label>
+                        <input asp-for="Genre" class="form-input" placeholder="e.g. Sci-Fi / Thriller" />
+                        <span asp-validation-for="Genre" class="field-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="ReleaseDate">Release Date *</label>
+                        <input asp-for="ReleaseDate" type="date" class="form-input" />
+                        <span asp-validation-for="ReleaseDate" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div class="form-grid-2">
+                    <div class="form-group">
+                        <label asp-for="PosterUrl">Poster Image URL</label>
+                        <input asp-for="PosterUrl" class="form-input" placeholder="https://..." id="posterUrlInput" />
+                        <span asp-validation-for="PosterUrl" class="field-error"></span>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="TrailerUrl">Trailer URL</label>
+                        <input asp-for="TrailerUrl" class="form-input" placeholder="https://youtube.com/..." />
+                        <span asp-validation-for="TrailerUrl" class="field-error"></span>
+                    </div>
+                </div>
+
+                <div class="poster-preview-wrap">
+                    <img id="posterPreview" src="@Model.PosterUrl" alt="Poster preview"
+                         style="@(string.IsNullOrEmpty(Model.PosterUrl) ? "display:none" : "")"
+                         class="poster-preview-img" />
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary"><i class="fas fa-plus"></i> Add Movie</button>
+                    <a asp-action="Movies" class="btn-ghost">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('posterUrlInput')?.addEventListener('input', function () {
+            const preview = document.getElementById('posterPreview');
+            if (this.value) {
+                preview.src = this.value;
+                preview.style.display = 'block';
+            } else {
+                preview.style.display = 'none';
+            }
+        });
+    </script>
+}

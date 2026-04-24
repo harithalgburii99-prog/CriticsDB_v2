@@ -1,0 +1,75 @@
+@model LoginViewModel
+@{
+    ViewData["Title"] = "Sign In";
+    Layout = "_Layout";
+}
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <i class="fas fa-film"></i>
+            CRITICS<span class="brand-accent">DB</span>
+        </div>
+        <h2 class="auth-title">Welcome Back</h2>
+        <p class="auth-subtitle">Sign in to rate and review movies</p>
+
+        <form asp-action="Login" method="post">
+            @Html.AntiForgeryToken()
+            <input type="hidden" name="ReturnUrl" value="@ViewBag.ReturnUrl" />
+
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-group">
+                <label asp-for="Email">Email</label>
+                <div class="input-icon-wrap">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input asp-for="Email" class="form-input" placeholder="you@example.com" autocomplete="email" />
+                </div>
+                <span asp-validation-for="Email" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Password">Password</label>
+                <div class="input-icon-wrap">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input asp-for="Password" class="form-input" placeholder="••••••••" autocomplete="current-password" />
+                    <button type="button" class="toggle-password" onclick="togglePassword(this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+                <span asp-validation-for="Password" class="field-error"></span>
+            </div>
+
+            <div class="form-row-split">
+                <label class="checkbox-label">
+                    <input asp-for="RememberMe" type="checkbox" />
+                    <span>Remember me</span>
+                </label>
+            </div>
+
+            <button type="submit" class="btn-auth">Sign In</button>
+        </form>
+
+        <div class="auth-divider"><span>New here?</span></div>
+        <a asp-action="Register" class="btn-auth-outline">Create a Free Account</a>
+
+        <div class="auth-demo-hint">
+            <strong>Demo:</strong> demo@criticsdb.com / Demo@123!
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function togglePassword(btn) {
+            const input = btn.previousElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.querySelector('i').className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                btn.querySelector('i').className = 'fas fa-eye';
+            }
+        }
+    </script>
+}

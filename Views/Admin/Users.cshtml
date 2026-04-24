@@ -1,0 +1,84 @@
+@model List<AdminUserViewModel>
+@{
+    ViewData["Title"] = "Manage Users";
+}
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand"><i class="fas fa-shield-halved"></i> Admin Panel</div>
+        <nav class="admin-nav">
+            <a asp-action="Index" class="admin-nav-link"><i class="fas fa-gauge-high"></i> Dashboard</a>
+            <a asp-action="Movies" class="admin-nav-link"><i class="fas fa-film"></i> Movies</a>
+            <a asp-action="Reviews" class="admin-nav-link"><i class="fas fa-comments"></i> Reviews</a>
+            <a asp-action="Users" class="admin-nav-link active"><i class="fas fa-users"></i> Users</a>
+            <div class="admin-nav-divider"></div>
+            <a asp-controller="Home" asp-action="Index" class="admin-nav-link"><i class="fas fa-arrow-left"></i> Back to Site</a>
+        </nav>
+    </aside>
+
+    <div class="admin-main">
+        <div class="admin-topbar">
+            <h1 class="admin-page-title">Users</h1>
+        </div>
+
+        <div class="admin-panel">
+            <table class="admin-table admin-table-full">
+                <thead>
+                    <tr>
+                        <th>User</th><th>Email</th><th>Role</th>
+                        <th>Reviews</th><th>Ratings</th><th>Joined</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var u in Model)
+                    {
+                        <tr>
+                            <td>
+                                <a asp-controller="Profile" asp-action="Details" asp-route-id="@u.Id">
+                                    @u.DisplayName
+                                </a>
+                            </td>
+                            <td>@u.Email</td>
+                            <td>
+                                <span class="role-badge role-@u.Role.ToLower()">@u.Role</span>
+                            </td>
+                            <td>@u.ReviewCount</td>
+                            <td>@u.RatingCount</td>
+                            <td>@u.JoinedAt.ToString("MMM dd, yyyy")</td>
+                            <td class="tbl-actions">
+                                <form asp-action="ToggleUserRole" method="post" class="inline-form">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="userId" value="@u.Id" />
+                                    <button type="submit" class="tbl-btn-edit" title="Toggle Role">
+                                        <i class="fas fa-user-shield"></i>
+                                        @(u.Role == "Admin" ? "→ User" : "→ Admin")
+                                    </button>
+                                </form>
+                                @if (u.Email != "admin@criticsdb.com")
+                                {
+                                    <form asp-action="DeleteUser" method="post" class="inline-form"
+                                          onsubmit="return confirm('Delete user @u.DisplayName?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="userId" value="@u.Id" />
+                                        <button type="submit" class="tbl-btn-del"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if ((int)ViewBag.TotalPages > 1)
+            {
+                <div class="pagination">
+                    @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                    {
+                        <a asp-action="Users" asp-route-page="@i"
+                           class="page-btn @(i == (int)ViewBag.Page ? "active" : "")">@i</a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

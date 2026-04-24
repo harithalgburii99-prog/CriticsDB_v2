@@ -1,0 +1,74 @@
+@model MovieIndexViewModel
+@{
+    ViewData["Title"] = "Movies";
+}
+
+<div class="page-header-bar">
+    <div class="container">
+        <h1 class="page-title"><i class="fas fa-film"></i> All Movies</h1>
+        <p class="page-subtitle">@Model.TotalCount movies in the database</p>
+    </div>
+</div>
+
+<div class="container movies-page">
+    <div class="filter-bar">
+        <form asp-action="Index" method="get" class="filter-form" id="filterForm">
+            <div class="search-group">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="search" value="@Model.SearchQuery" placeholder="Search titles, directors, genres..." class="search-input" />
+            </div>
+            <select name="genre" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+                <option value="">All Genres</option>
+                @foreach (var g in Model.Genres)
+                {
+                    <option value="@g" selected="@(Model.Genre == g)">@g</option>
+                }
+            </select>
+            <select name="sortBy" class="filter-select" onchange="document.getElementById('filterForm').submit()">
+                <option value="latest" selected="@(Model.SortBy == "latest")">Latest</option>
+                <option value="top" selected="@(Model.SortBy == "top")">Top Rated</option>
+                <option value="most-reviewed" selected="@(Model.SortBy == "most-reviewed")">Most Reviewed</option>
+                <option value="oldest" selected="@(Model.SortBy == "oldest")">Oldest</option>
+            </select>
+            <button type="submit" class="btn-filter">Search</button>
+            @if (!string.IsNullOrEmpty(Model.SearchQuery) || !string.IsNullOrEmpty(Model.Genre))
+            {
+                <a asp-action="Index" class="btn-clear">Clear</a>
+            }
+        </form>
+    </div>
+
+    @if (!Model.Movies.Any())
+    {
+        <div class="empty-state">
+            <i class="fas fa-film-slash"></i>
+            <h3>No movies found</h3>
+            <p>Try different search terms or filters.</p>
+            <a asp-action="Index" class="btn-primary">Clear Filters</a>
+        </div>
+    }
+    else
+    {
+        <div class="movie-grid movie-grid-wide">
+            @foreach (var movie in Model.Movies)
+            {
+                <partial name="_MovieCard" model="movie" />
+            }
+        </div>
+
+        @if (Model.TotalPages > 1)
+        {
+            <div class="pagination">
+                @for (int i = 1; i <= Model.TotalPages; i++)
+                {
+                    <a asp-action="Index"
+                       asp-route-search="@Model.SearchQuery"
+                       asp-route-genre="@Model.Genre"
+                       asp-route-sortBy="@Model.SortBy"
+                       asp-route-page="@i"
+                       class="page-btn @(i == Model.Page ? "active" : "")">@i</a>
+                }
+            </div>
+        }
+    }
+</div>

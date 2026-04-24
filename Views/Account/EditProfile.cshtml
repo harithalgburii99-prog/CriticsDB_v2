@@ -1,0 +1,42 @@
+@model EditProfileViewModel
+@{
+    ViewData["Title"] = "Edit Profile";
+}
+
+<div class="container page-container">
+    <div class="form-page-card">
+        <h1 class="form-page-title"><i class="fas fa-user-pen"></i> Edit Profile</h1>
+
+        <form asp-action="EditProfile" method="post">
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+
+            <div class="form-group">
+                <label asp-for="DisplayName">Display Name</label>
+                <input asp-for="DisplayName" class="form-input" />
+                <span asp-validation-for="DisplayName" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Bio">Bio</label>
+                <textarea asp-for="Bio" class="form-textarea" rows="3" placeholder="Tell us about yourself..."></textarea>
+                <span asp-validation-for="Bio" class="field-error"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="AvatarUrl">Avatar Image URL</label>
+                <input asp-for="AvatarUrl" class="form-input" placeholder="https://..." />
+                <span asp-validation-for="AvatarUrl" class="field-error"></span>
+                @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                {
+                    <img src="@Model.AvatarUrl" class="avatar-preview" alt="Avatar preview" onerror="this.style.display='none'" />
+                }
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn-primary">Save Changes</button>
+                <a asp-action="Profile" class="btn-ghost">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,373 @@
+@model MovieDetailsViewModel
+@{
+    ViewData["Title"] = Model.Title;
+}
+
+<div class="movie-details-page">
+    <div class="movie-hero" style="--poster: url('@(Model.PosterUrl ?? "")')">
+        <div class="movie-hero-backdrop"></div>
+        <div class="container movie-hero-content">
+            <div class="movie-poster-wrap">
+                @if (!string.IsNullOrEmpty(Model.PosterUrl))
+                {
+                    <img src="@Model.PosterUrl" alt="@Model.Title" class="movie-poster-lg" onerror="this.parentElement.innerHTML='<div class=no-poster-lg><i class=fas fa-film></i></div>'" />
+                }
+                else
+                {
+                    <div class="no-poster-lg"><i class="fas fa-film"></i></div>
+                }
+            </div>
+            <div class="movie-hero-info">
+                <div class="movie-genre-tag">@Model.Genre</div>
+                <h1 class="movie-title-lg">@Model.Title</h1>
+                <div class="movie-meta-row">
+                    @if (!string.IsNullOrEmpty(Model.Director))
+                    {
+                        <span><i class="fas fa-video"></i> @Model.Director</span>
+                    }
+                    <span><i class="fas fa-calendar"></i> @Model.ReleaseDate.Year</span>
+                    <span><i class="fas fa-comment"></i> @Model.Reviews.Count Reviews</span>
+                </div>
+
+                <div class="rating-display">
+                    <div class="big-rating">
+                        <span class="rating-number">@(Model.AverageRating > 0 ? Model.AverageRating.ToString("F1") : "—")</span>
+                        <span class="rating-out">/10</span>
+                    </div>
+                    <div class="rating-stars-display">
+                        @for (int i = 1; i <= 10; i++)
+                        {
+                            var filled = i <= Math.Round(Model.AverageRating);
+                            <i class="@(filled ? "fas" : "far") fa-star @(filled ? "star-filled" : "star-empty")"></i>
+                        }
+                        <span class="rating-count-sm">(@Model.RatingCount votes)</span>
+                    </div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.TrailerUrl))
+                {
+                    <a href="@Model.TrailerUrl" target="_blank" class="btn-trailer">
+                        <i class="fas fa-play"></i> Watch Trailer
+                    </a>
+                }
+
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="user-rating-section">
+                        <p class="rate-label">Your Rating:</p>
+                        <div class="star-rater" data-movie-id="@Model.Id" data-current="@(Model.CurrentUserRating ?? 0)">
+                            @for (int i = 1; i <= 10; i++)
+                            {
+                                <button class="star-btn @(i <= (Model.CurrentUserRating ?? 0) ? "active" : "")" data-value="@i">
+                                    <i class="@(i <= (Model.CurrentUserRating ?? 0) ? "fas" : "far") fa-star"></i>
+                                </button>
+                            }
+                            <span class="your-rating-text">@(Model.CurrentUserRating.HasValue ? $"You rated {Model.CurrentUserRating}/10" : "Click to rate")</span>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn-ghost-sm">
+                        <i class="fas fa-star"></i> Sign in to rate
+                    </a>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="container movie-body">
+        <div class="movie-body-grid">
+            <div class="movie-body-main">
+                <div class="movie-description-card">
+                    <h2 class="section-heading">Synopsis</h2>
+                    <p class="movie-description">@Model.Description</p>
+                </div>
+
+                <!-- Rating Distribution -->
+                @if (Model.RatingCount > 0)
+                {
+                    <div class="rating-dist-card">
+                        <h2 class="section-heading">Rating Distribution</h2>
+                        <div class="rating-bars">
+                            @for (int i = 9; i >= 0; i--)
+                            {
+                                var count = Model.RatingDistribution[i];
+                                var pct = Model.RatingCount > 0 ? (double)count / Model.RatingCount * 100 : 0;
+                                <div class="rating-bar-row">
+                                    <span class="bar-label">@(i + 1)</span>
+                                    <div class="bar-track">
+                                        <div class="bar-fill" style="width: @pct.ToString("F0")%"></div>
+                                    </div>
+                                    <span class="bar-count">@count</span>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                }
+
+                <!-- Reviews -->
+                <div class="reviews-section">
+                    <div class="reviews-header">
+                        <h2 class="section-heading">Critics Reviews <span class="review-count-badge">@Model.Reviews.Count</span></h2>
+                    </div>
+
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <div class="write-review-card" id="reviewFormCard">
+                            <h3>@(Model.HasUserReviewed ? "Edit Your Review" : "Write a Review")</h3>
+                            <form asp-action="Review" asp-controller="Movies" method="post">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="Id" value="@Model.ReviewForm!.Id" />
+                                <input type="hidden" name="MovieId" value="@Model.Id" />
+
+                                <div class="form-group">
+                                    <label>Your Score (1-10)</label>
+                                    <div class="inline-rating-input">
+                                        @for (int i = 1; i <= 10; i++)
+                                        {
+                                            if (Model.ReviewForm!.Rating == i)
+                                            {
+                                                <input type="radio" name="Rating" value="@i" id="@($"reviewRating{i}")" checked />
+                                            }
+                                            else
+                                            {
+                                                <input type="radio" name="Rating" value="@i" id="@($"reviewRating{i}")" />
+                                            }
+                                            <label for="@($"reviewRating{i}")" class="rating-radio-label">@i</label>
+                                        }
+                                    </div>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="comment">Your Review</label>
+                                    <textarea name="Comment" id="comment" rows="4" maxlength="2000"
+                                              placeholder="Share your thoughts on this film..." class="form-textarea">@Model.ReviewForm.Comment</textarea>
+                                    <span class="char-counter"><span id="charCount">@Model.ReviewForm.Comment.Length</span>/2000</span>
+                                </div>
+
+                                <button type="submit" class="btn-submit-review">
+                                    <i class="fas fa-pen"></i> @(Model.HasUserReviewed ? "Update Review" : "Post Review")
+                                </button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="login-prompt-card">
+                            <i class="fas fa-pen-to-square"></i>
+                            <p>Want to share your opinion?</p>
+                            <a asp-controller="Account" asp-action="Login" class="btn-primary">Sign In to Review</a>
+                        </div>
+                    }
+
+                    @if (!Model.Reviews.Any())
+                    {
+                        <div class="empty-reviews">
+                            <i class="fas fa-comment-slash"></i>
+                            <p>No reviews yet. Be the first to share your thoughts!</p>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="reviews-list">
+                            @foreach (var review in Model.Reviews)
+                            {
+                                <div class="review-card @(review.IsOwnReview ? "own-review" : "")">
+                                    <div class="review-header">
+                                        <div class="reviewer-info">
+                                            <div class="reviewer-avatar">
+                                                @if (!string.IsNullOrEmpty(review.UserAvatar))
+                                                {
+                                                    <img src="@review.UserAvatar" alt="@review.UserName" />
+                                                }
+                                                else
+                                                {
+                                                    <span>@review.UserName[0].ToString().ToUpper()</span>
+                                                }
+                                            </div>
+                                            <div>
+                                                <a asp-controller="Profile" asp-action="Details" asp-route-id="@review.UserId" class="reviewer-name">
+                                                    @review.UserName
+                                                </a>
+                                                <div class="review-date">
+                                                    @review.CreatedAt.ToString("MMM dd, yyyy")
+                                                    @if (review.UpdatedAt.HasValue)
+                                                    {
+                                                        <span class="edited-tag">(edited)</span>
+                                                    }
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="review-score-badge">@review.Rating<span>/10</span></div>
+                                    </div>
+                                    <p class="review-body">@review.Comment</p>
+                                    <div class="review-footer">
+                                        <div class="review-reactions">
+                                            @if (User.Identity?.IsAuthenticated == true)
+                                            {
+                                                <button class="reaction-btn like-btn @(review.CurrentUserLiked == true ? "active" : "")"
+                                                        data-review-id="@review.Id" data-is-like="true">
+                                                    <i class="fas fa-thumbs-up"></i>
+                                                    <span class="like-count">@review.LikeCount</span>
+                                                </button>
+                                                <button class="reaction-btn dislike-btn @(review.CurrentUserLiked == false ? "active" : "")"
+                                                        data-review-id="@review.Id" data-is-like="false">
+                                                    <i class="fas fa-thumbs-down"></i>
+                                                    <span class="dislike-count">@review.DislikeCount</span>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <span class="reaction-static"><i class="fas fa-thumbs-up"></i> @review.LikeCount</span>
+                                                <span class="reaction-static"><i class="fas fa-thumbs-down"></i> @review.DislikeCount</span>
+                                            }
+                                        </div>
+                                        @if (review.IsOwnReview || User.IsInRole("Admin"))
+                                        {
+                                            <div class="review-actions">
+                                                @if (review.IsOwnReview)
+                                                {
+                                                    <button class="btn-edit-review" onclick="scrollToReviewForm()">
+                                                        <i class="fas fa-pen"></i> Edit
+                                                    </button>
+                                                }
+                                                <form asp-action="DeleteReview" asp-controller="Movies" method="post" class="inline-form"
+                                                      onsubmit="return confirm('Delete this review?')">
+                                                    @Html.AntiForgeryToken()
+                                                    <input type="hidden" name="id" value="@review.Id" />
+                                                    <button type="submit" class="btn-delete-review">
+                                                        <i class="fas fa-trash"></i> Delete
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        }
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="movie-body-sidebar">
+                <div class="sidebar-card">
+                    <h3 class="sidebar-heading">Movie Info</h3>
+                    <dl class="movie-info-list">
+                        <dt>Director</dt><dd>@(Model.Director ?? "Unknown")</dd>
+                        <dt>Genre</dt><dd>@Model.Genre</dd>
+                        <dt>Release</dt><dd>@Model.ReleaseDate.ToString("MMMM d, yyyy")</dd>
+                        <dt>Rating</dt><dd>@(Model.AverageRating > 0 ? $"{Model.AverageRating:F1}/10" : "Not yet rated")</dd>
+                        <dt>Votes</dt><dd>@Model.RatingCount</dd>
+                        <dt>Reviews</dt><dd>@Model.Reviews.Count</dd>
+                    </dl>
+                </div>
+                @if (User.IsInRole("Admin"))
+                {
+                    <div class="sidebar-card sidebar-admin">
+                        <h3 class="sidebar-heading"><i class="fas fa-shield-halved"></i> Admin</h3>
+                        <a asp-controller="Admin" asp-action="EditMovie" asp-route-id="@Model.Id" class="btn-admin-action">
+                            <i class="fas fa-pen"></i> Edit Movie
+                        </a>
+                        <form asp-controller="Admin" asp-action="DeleteMovie" method="post"
+                              onsubmit="return confirm('Delete this movie and all its data?')">
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <button type="submit" class="btn-admin-delete">
+                                <i class="fas fa-trash"></i> Delete Movie
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Star rater
+        const rater = document.querySelector('.star-rater');
+        if (rater) {
+            const movieId = rater.dataset.movieId;
+            const btns = rater.querySelectorAll('.star-btn');
+            const label = rater.querySelector('.your-rating-text');
+
+            btns.forEach((btn, idx) => {
+                btn.addEventListener('mouseenter', () => {
+                    btns.forEach((b, i) => {
+                        b.querySelector('i').className = i <= idx ? 'fas fa-star' : 'far fa-star';
+                        b.classList.toggle('hover', i <= idx);
+                    });
+                });
+                btn.addEventListener('mouseleave', () => {
+                    const cur = parseInt(rater.dataset.current) || 0;
+                    btns.forEach((b, i) => {
+                        b.querySelector('i').className = i < cur ? 'fas fa-star' : 'far fa-star';
+                        b.classList.toggle('active', i < cur);
+                        b.classList.remove('hover');
+                    });
+                });
+                btn.addEventListener('click', async () => {
+                    const val = parseInt(btn.dataset.value);
+                    const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                    try {
+                        const res = await fetch('/Movies/Rate', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                            body: `movieId=${movieId}&value=${val}&__RequestVerificationToken=${encodeURIComponent(token || '')}`
+                        });
+                        const data = await res.json();
+                        if (data.success) {
+                            rater.dataset.current = val;
+                            label.textContent = `You rated ${val}/10`;
+                            document.querySelector('.rating-number').textContent = data.average.toFixed(1);
+                            document.querySelector('.rating-count-sm').textContent = `(${data.count} votes)`;
+                            btns.forEach((b, i) => {
+                                b.classList.toggle('active', i < val);
+                                b.querySelector('i').className = i < val ? 'fas fa-star' : 'far fa-star';
+                            });
+                        }
+                    } catch (e) { console.error(e); }
+                });
+            });
+        }
+
+        // Like/dislike reactions
+        document.querySelectorAll('.reaction-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                const reviewId = btn.dataset.reviewId;
+                const isLike = btn.dataset.isLike === 'true';
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value;
+                try {
+                    const res = await fetch('/Movies/LikeReview', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                        body: `reviewId=${reviewId}&isLike=${isLike}&__RequestVerificationToken=${encodeURIComponent(token || '')}`
+                    });
+                    const data = await res.json();
+                    const reactions = btn.closest('.review-reactions');
+                    const likeBtn = reactions.querySelector('.like-btn');
+                    const dislikeBtn = reactions.querySelector('.dislike-btn');
+                    const wasActive = btn.classList.contains('active');
+                    likeBtn.querySelector('.like-count').textContent = data.likes;
+                    dislikeBtn.querySelector('.dislike-count').textContent = data.dislikes;
+                    likeBtn.classList.remove('active');
+                    dislikeBtn.classList.remove('active');
+                    if (!wasActive) btn.classList.add('active');
+                } catch (e) { console.error(e); }
+            });
+        });
+
+        // Char counter
+        const textarea = document.getElementById('comment');
+        const counter = document.getElementById('charCount');
+        if (textarea && counter) {
+            textarea.addEventListener('input', () => counter.textContent = textarea.value.length);
+        }
+
+        function scrollToReviewForm() {
+            document.getElementById('reviewFormCard')?.scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+}

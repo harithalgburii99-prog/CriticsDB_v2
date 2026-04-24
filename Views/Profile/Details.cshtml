@@ -1,0 +1,95 @@
+@model UserProfileViewModel
+@{
+    ViewData["Title"] = Model.DisplayName + "'s Profile";
+    var isOwnProfile = User.Identity?.IsAuthenticated == true &&
+        (await Html.PartialAsync("_CurrentUserId")).ToString()?.Trim() == Model.Id;
+}
+
+<div class="container page-container">
+    <div class="profile-page">
+        <div class="profile-header-card">
+            <div class="profile-avatar-wrap">
+                @if (!string.IsNullOrEmpty(Model.AvatarUrl))
+                {
+                    <img src="@Model.AvatarUrl" alt="@Model.DisplayName" class="profile-avatar" onerror="this.style.display='none'" />
+                }
+                else
+                {
+                    <div class="profile-avatar-placeholder">@Model.DisplayName[0].ToString().ToUpper()</div>
+                }
+            </div>
+            <div class="profile-info">
+                <h1 class="profile-name">@Model.DisplayName</h1>
+                @if (!string.IsNullOrEmpty(Model.Bio))
+                {
+                    <p class="profile-bio">@Model.Bio</p>
+                }
+                <div class="profile-meta">
+                    <span><i class="fas fa-calendar-alt"></i> Joined @Model.JoinedAt.ToString("MMMM yyyy")</span>
+                    <span><i class="fas fa-envelope"></i> @Model.Email</span>
+                </div>
+                <div class="profile-stats">
+                    <div class="stat-pill">
+                        <span class="stat-num">@Model.ReviewCount</span>
+                        <span class="stat-lbl">Reviews</span>
+                    </div>
+                    <div class="stat-pill">
+                        <span class="stat-num">@Model.RatingCount</span>
+                        <span class="stat-lbl">Ratings</span>
+                    </div>
+                    <div class="stat-pill">
+                        <span class="stat-num">@(Model.AverageRatingGiven > 0 ? Model.AverageRatingGiven.ToString("F1") : "—")</span>
+                        <span class="stat-lbl">Avg Given</span>
+                    </div>
+                </div>
+            </div>
+            <div class="profile-actions">
+                @if (User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value == Model.Id)
+                {
+                    <a asp-controller="Account" asp-action="EditProfile" class="btn-primary">
+                        <i class="fas fa-pen"></i> Edit Profile
+                    </a>
+                }
+            </div>
+        </div>
+
+        <div class="profile-reviews-section">
+            <h2 class="section-heading">Recent Reviews</h2>
+            @if (!Model.RecentReviews.Any())
+            {
+                <div class="empty-state">
+                    <i class="fas fa-comment-slash"></i>
+                    <p>No reviews yet.</p>
+                </div>
+            }
+            else
+            {
+                <div class="profile-reviews-grid">
+                    @foreach (var r in Model.RecentReviews)
+                    {
+                        <a asp-controller="Movies" asp-action="Details" asp-route-id="@r.MovieId" class="profile-review-card">
+                            <div class="prc-poster">
+                                @if (!string.IsNullOrEmpty(r.MoviePoster))
+                                {
+                                    <img src="@r.MoviePoster" alt="@r.MovieTitle" onerror="this.parentElement.innerHTML='<div class=no-poster-sm><i class=fas fa-film></i></div>'" />
+                                }
+                                else
+                                {
+                                    <div class="no-poster-sm"><i class="fas fa-film"></i></div>
+                                }
+                            </div>
+                            <div class="prc-info">
+                                <div class="prc-header">
+                                    <h4 class="prc-title">@r.MovieTitle</h4>
+                                    <span class="prc-score">@r.Rating<span>/10</span></span>
+                                </div>
+                                <p class="prc-comment">@(r.Comment.Length > 120 ? r.Comment[..120] + "…" : r.Comment)</p>
+                                <span class="prc-date">@r.CreatedAt.ToString("MMM dd, yyyy")</span>
+                            </div>
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

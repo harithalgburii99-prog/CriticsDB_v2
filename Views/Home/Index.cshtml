@@ -1,0 +1,152 @@
+@model HomeViewModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="hero-content">
+        <div class="hero-eyebrow"><i class="fas fa-star"></i> The Critics Database</div>
+        <h1 class="hero-title">Every Film.<br><span class="accent-text">Every Opinion.</span></h1>
+        <p class="hero-subtitle">Discover, rate, and review movies with a community of passionate critics.</p>
+        <div class="hero-actions">
+            <a asp-controller="Movies" asp-action="Index" class="btn-primary-lg">
+                <i class="fas fa-compass"></i> Browse All Movies
+            </a>
+            @if (!User.Identity!.IsAuthenticated)
+            {
+                <a asp-controller="Account" asp-action="Register" class="btn-ghost-lg">
+                    Join Free <i class="fas fa-arrow-right"></i>
+                </a>
+            }
+        </div>
+    </div>
+    <div class="hero-scroll-hint"><i class="fas fa-chevron-down"></i></div>
+</section>
+
+<div class="home-sections">
+
+    @if (Model.TopRated.Any())
+    {
+        <section class="movie-section">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-trophy"></i> Top Rated</h2>
+                <a asp-controller="Movies" asp-action="Index" asp-route-sortBy="top" class="section-link">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="movie-grid">
+                @foreach (var m in Model.TopRated)
+                {
+                    <a class="movie-card" asp-controller="Movies" asp-action="Details" asp-route-id="@m.Id">
+                        <div class="movie-card-poster">
+                            @if (!string.IsNullOrEmpty(m.PosterUrl))
+                            {
+                                <img src="@m.PosterUrl" alt="@m.Title" loading="lazy" onerror="this.src='/images/no-poster.svg'" />
+                            }
+                            else
+                            {
+                                <div class="no-poster"><i class="fas fa-film"></i></div>
+                            }
+                            <div class="movie-card-overlay">
+                                <div class="card-rating-badge">
+                                    <i class="fas fa-star"></i>
+                                    @(m.AverageRating > 0 ? m.AverageRating.ToString("F1") : "—")
+                                </div>
+                            </div>
+                        </div>
+                        <div class="movie-card-info">
+                            <span class="card-genre">@m.Genre</span>
+                            <h3 class="card-title">@m.Title</h3>
+                            <div class="card-meta">
+                                <span><i class="fas fa-calendar"></i> @m.ReleaseDate.Year</span>
+                                <span><i class="fas fa-comment"></i> @m.ReviewCount</span>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+    @if (Model.Latest.Any())
+    {
+        <section class="movie-section">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-calendar-star"></i> Latest Releases</h2>
+                <a asp-controller="Movies" asp-action="Index" asp-route-sortBy="latest" class="section-link">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="movie-grid">
+                @foreach (var m in Model.Latest)
+                {
+                    <a class="movie-card" asp-controller="Movies" asp-action="Details" asp-route-id="@m.Id">
+                        <div class="movie-card-poster">
+                            @if (!string.IsNullOrEmpty(m.PosterUrl))
+                            {
+                                <img src="@m.PosterUrl" alt="@m.Title" loading="lazy" onerror="this.src='/images/no-poster.svg'" />
+                            }
+                            else
+                            {
+                                <div class="no-poster"><i class="fas fa-film"></i></div>
+                            }
+                            <div class="movie-card-overlay">
+                                <div class="card-rating-badge">
+                                    <i class="fas fa-star"></i>
+                                    @(m.AverageRating > 0 ? m.AverageRating.ToString("F1") : "—")
+                                </div>
+                            </div>
+                        </div>
+                        <div class="movie-card-info">
+                            <span class="card-genre">@m.Genre</span>
+                            <h3 class="card-title">@m.Title</h3>
+                            <div class="card-meta">
+                                <span><i class="fas fa-calendar"></i> @m.ReleaseDate.Year</span>
+                                <span><i class="fas fa-comment"></i> @m.ReviewCount</span>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+    @if (Model.MostReviewed.Any())
+    {
+        <section class="movie-section">
+            <div class="section-header">
+                <h2 class="section-title"><i class="fas fa-comments"></i> Most Reviewed</h2>
+                <a asp-controller="Movies" asp-action="Index" asp-route-sortBy="most-reviewed" class="section-link">View All <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="movie-grid">
+                @foreach (var m in Model.MostReviewed)
+                {
+                    <a class="movie-card" asp-controller="Movies" asp-action="Details" asp-route-id="@m.Id">
+                        <div class="movie-card-poster">
+                            @if (!string.IsNullOrEmpty(m.PosterUrl))
+                            {
+                                <img src="@m.PosterUrl" alt="@m.Title" loading="lazy" onerror="this.src='/images/no-poster.svg'" />
+                            }
+                            else
+                            {
+                                <div class="no-poster"><i class="fas fa-film"></i></div>
+                            }
+                            <div class="movie-card-overlay">
+                                <div class="card-rating-badge">
+                                    <i class="fas fa-star"></i>
+                                    @(m.AverageRating > 0 ? m.AverageRating.ToString("F1") : "—")
+                                </div>
+                            </div>
+                        </div>
+                        <div class="movie-card-info">
+                            <span class="card-genre">@m.Genre</span>
+                            <h3 class="card-title">@m.Title</h3>
+                            <div class="card-meta">
+                                <span><i class="fas fa-calendar"></i> @m.ReleaseDate.Year</span>
+                                <span><i class="fas fa-comment"></i> @m.ReviewCount</span>
+                            </div>
+                        </div>
+                    </a>
+                }
+            </div>
+        </section>
+    }
+
+</div>

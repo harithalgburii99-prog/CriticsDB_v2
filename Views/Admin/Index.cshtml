@@ -1,0 +1,130 @@
+@model AdminDashboardViewModel
+@{
+    ViewData["Title"] = "Admin Dashboard";
+}
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand">
+            <i class="fas fa-shield-halved"></i> Admin Panel
+        </div>
+        <nav class="admin-nav">
+            <a asp-action="Index" class="admin-nav-link active"><i class="fas fa-gauge-high"></i> Dashboard</a>
+            <a asp-action="Movies" class="admin-nav-link"><i class="fas fa-film"></i> Movies</a>
+            <a asp-action="Reviews" class="admin-nav-link"><i class="fas fa-comments"></i> Reviews</a>
+            <a asp-action="Users" class="admin-nav-link"><i class="fas fa-users"></i> Users</a>
+            <div class="admin-nav-divider"></div>
+            <a asp-controller="Home" asp-action="Index" class="admin-nav-link"><i class="fas fa-arrow-left"></i> Back to Site</a>
+        </nav>
+    </aside>
+
+    <div class="admin-main">
+        <div class="admin-topbar">
+            <h1 class="admin-page-title">Dashboard</h1>
+        </div>
+
+        <div class="admin-stats-grid">
+            <div class="admin-stat-card stat-movies">
+                <div class="stat-icon"><i class="fas fa-film"></i></div>
+                <div class="stat-body">
+                    <span class="stat-value">@Model.TotalMovies</span>
+                    <span class="stat-label">Movies</span>
+                </div>
+                <a asp-action="Movies" class="stat-link">Manage <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="admin-stat-card stat-users">
+                <div class="stat-icon"><i class="fas fa-users"></i></div>
+                <div class="stat-body">
+                    <span class="stat-value">@Model.TotalUsers</span>
+                    <span class="stat-label">Users</span>
+                </div>
+                <a asp-action="Users" class="stat-link">Manage <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="admin-stat-card stat-reviews">
+                <div class="stat-icon"><i class="fas fa-comments"></i></div>
+                <div class="stat-body">
+                    <span class="stat-value">@Model.TotalReviews</span>
+                    <span class="stat-label">Reviews</span>
+                </div>
+                <a asp-action="Reviews" class="stat-link">Manage <i class="fas fa-arrow-right"></i></a>
+            </div>
+            <div class="admin-stat-card stat-ratings">
+                <div class="stat-icon"><i class="fas fa-star"></i></div>
+                <div class="stat-body">
+                    <span class="stat-value">@Model.TotalRatings</span>
+                    <span class="stat-label">Ratings</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="admin-panels-grid">
+            <div class="admin-panel">
+                <div class="panel-header">
+                    <h2>Recent Movies</h2>
+                    <a asp-action="CreateMovie" class="btn-panel-action"><i class="fas fa-plus"></i> Add Movie</a>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr><th>Title</th><th>Genre</th><th>Rating</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var m in Model.RecentMovies)
+                        {
+                            <tr>
+                                <td>
+                                    <a asp-controller="Movies" asp-action="Details" asp-route-id="@m.Id">@m.Title</a>
+                                </td>
+                                <td><span class="genre-tag-sm">@m.Genre</span></td>
+                                <td>
+                                    <span class="rating-badge-sm">
+                                        <i class="fas fa-star"></i>
+                                        @(m.AverageRating > 0 ? m.AverageRating.ToString("F1") : "—")
+                                    </span>
+                                </td>
+                                <td>
+                                    <a asp-action="EditMovie" asp-route-id="@m.Id" class="tbl-btn-edit"><i class="fas fa-pen"></i></a>
+                                    <form asp-action="DeleteMovie" method="post" class="inline-form"
+                                          onsubmit="return confirm('Delete @m.Title?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@m.Id" />
+                                        <button type="submit" class="tbl-btn-del"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="admin-panel">
+                <div class="panel-header">
+                    <h2>Recent Reviews</h2>
+                    <a asp-action="Reviews" class="btn-panel-action-ghost">View All</a>
+                </div>
+                <table class="admin-table">
+                    <thead>
+                        <tr><th>User</th><th>Movie</th><th>Score</th><th></th></tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.RecentReviews)
+                        {
+                            <tr>
+                                <td>@r.UserName</td>
+                                <td><a asp-controller="Movies" asp-action="Details" asp-route-id="@r.MovieId">@r.MovieTitle</a></td>
+                                <td><span class="rating-badge-sm"><i class="fas fa-star"></i> @r.Rating</span></td>
+                                <td>
+                                    <form asp-action="DeleteReview" method="post" class="inline-form"
+                                          onsubmit="return confirm('Delete this review?')">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@r.Id" />
+                                        <button type="submit" class="tbl-btn-del"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

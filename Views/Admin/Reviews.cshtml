@@ -1,0 +1,72 @@
+@model List<AdminReviewViewModel>
+@{
+    ViewData["Title"] = "Manage Reviews";
+}
+
+<div class="admin-layout">
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand"><i class="fas fa-shield-halved"></i> Admin Panel</div>
+        <nav class="admin-nav">
+            <a asp-action="Index" class="admin-nav-link"><i class="fas fa-gauge-high"></i> Dashboard</a>
+            <a asp-action="Movies" class="admin-nav-link"><i class="fas fa-film"></i> Movies</a>
+            <a asp-action="Reviews" class="admin-nav-link active"><i class="fas fa-comments"></i> Reviews</a>
+            <a asp-action="Users" class="admin-nav-link"><i class="fas fa-users"></i> Users</a>
+            <div class="admin-nav-divider"></div>
+            <a asp-controller="Home" asp-action="Index" class="admin-nav-link"><i class="fas fa-arrow-left"></i> Back to Site</a>
+        </nav>
+    </aside>
+
+    <div class="admin-main">
+        <div class="admin-topbar">
+            <h1 class="admin-page-title">Reviews</h1>
+        </div>
+
+        <div class="admin-panel">
+            <table class="admin-table admin-table-full">
+                <thead>
+                    <tr>
+                        <th>User</th><th>Movie</th><th>Score</th>
+                        <th>Review</th><th>Date</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var r in Model)
+                    {
+                        <tr>
+                            <td>@r.UserName</td>
+                            <td>
+                                <a asp-controller="Movies" asp-action="Details" asp-route-id="@r.MovieId">
+                                    @r.MovieTitle
+                                </a>
+                            </td>
+                            <td><span class="rating-badge-sm"><i class="fas fa-star"></i> @r.Rating</span></td>
+                            <td class="review-excerpt">
+                                @(r.Comment.Length > 80 ? r.Comment[..80] + "…" : r.Comment)
+                            </td>
+                            <td>@r.CreatedAt.ToString("MMM dd, yyyy")</td>
+                            <td>
+                                <form asp-action="DeleteReview" method="post" class="inline-form"
+                                      onsubmit="return confirm('Delete this review?')">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@r.Id" />
+                                    <button type="submit" class="tbl-btn-del"><i class="fas fa-trash"></i> Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            @if ((int)ViewBag.TotalPages > 1)
+            {
+                <div class="pagination">
+                    @for (int i = 1; i <= (int)ViewBag.TotalPages; i++)
+                    {
+                        <a asp-action="Reviews" asp-route-page="@i"
+                           class="page-btn @(i == (int)ViewBag.Page ? "active" : "")">@i</a>
+                    }
+                </div>
+            }
+        </div>
+    </div>
+</div>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] != null ? ViewData["Title"] + " — " : "")CriticsDB</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <a class="nav-brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-icon"><i class="fas fa-film"></i></span>
+                CRITICS<span class="brand-accent">DB</span>
+            </a>
+            <div class="nav-links">
+                <a asp-controller="Movies" asp-action="Index">Movies</a>
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    @if (User.IsInRole("Admin"))
+                    {
+                        <a asp-controller="Admin" asp-action="Index" class="nav-admin">
+                            <i class="fas fa-shield-halved"></i> Admin
+                        </a>
+                    }
+                }
+            </div>
+            <div class="nav-auth">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="nav-user-menu">
+                        <button class="nav-user-btn" id="userMenuBtn">
+                            <span class="user-avatar-sm">@User.Identity.Name?[0].ToString().ToUpper()</span>
+                            <span class="user-name-sm">@User.Identity.Name?.Split('@')[0]</span>
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <a asp-controller="Account" asp-action="Profile"><i class="fas fa-user"></i> My Profile</a>
+                            <a asp-controller="Account" asp-action="EditProfile"><i class="fas fa-edit"></i> Edit Profile</a>
+                            <div class="dropdown-divider"></div>
+                            <form asp-controller="Account" asp-action="Logout" method="post">
+                                @Html.AntiForgeryToken()
+                                <button type="submit"><i class="fas fa-right-from-bracket"></i> Sign Out</button>
+                            </form>
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <a asp-controller="Account" asp-action="Login" class="btn-nav-ghost">Sign In</a>
+                    <a asp-controller="Account" asp-action="Register" class="btn-nav-solid">Join Free</a>
+                }
+                <button class="theme-toggle" id="themeToggle" title="Toggle dark mode">
+                    <i class="fas fa-moon" id="themeIcon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="toast-container">
+            <div class="toast toast-success">
+                <i class="fas fa-check-circle"></i>
+                <span>@TempData["Success"]</span>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+    }
+    @if (TempData["Error"] != null)
+    {
+        <div class="toast-container">
+            <div class="toast toast-error">
+                <i class="fas fa-exclamation-circle"></i>
+                <span>@TempData["Error"]</span>
+                <button class="toast-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+    }
+
+    <main>
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-container">
+            <div class="footer-brand">
+                <span class="brand-icon"><i class="fas fa-film"></i></span>
+                CRITICS<span class="brand-accent">DB</span>
+                <p>The critic's database. Rate it. Review it. Own it.</p>
+            </div>
+            <div class="footer-links">
+                <a asp-controller="Movies" asp-action="Index">Browse Movies</a>
+                @if (!User.Identity!.IsAuthenticated)
+                {
+                    <a asp-controller="Account" asp-action="Register">Create Account</a>
+                }
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <span>© @DateTime.Now.Year CriticsDB. Built with ASP.NET Core.</span>
+        </div>
+    </footer>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
