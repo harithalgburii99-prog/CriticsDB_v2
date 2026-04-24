@@ -4,7 +4,9 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 // Fix content root to always point to project folder (3 levels up from bin\Debug\net8.0)
-var projectRoot = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"..\..\..\"));
+var projectRoot = Environment.GetEnvironmentVariable("DATA_DIR") != null
+    ? AppContext.BaseDirectory
+    : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", ".."));
 
 var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 {
@@ -15,7 +17,8 @@ var builder = WebApplication.CreateBuilder(new WebApplicationOptions
 
 builder.Services.AddControllersWithViews();
 
-var dbPath = Path.Combine(projectRoot, "criticsdb.sqlite");
+var dataDir = Environment.GetEnvironmentVariable("DATA_DIR") ?? projectRoot;
+var dbPath = Path.Combine(dataDir, "criticsdb.sqlite");
 var connString = $"Data Source={dbPath}";
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
