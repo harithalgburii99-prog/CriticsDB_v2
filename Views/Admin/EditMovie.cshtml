@@ -52,10 +52,18 @@
                         <span asp-validation-for="Genre" class="field-error"></span>
                     </div>
                     <div class="form-group">
-                        <label asp-for="ReleaseDate">Release Date *</label>
-                        <input asp-for="ReleaseDate" type="date" class="form-input" />
-                        <span asp-validation-for="ReleaseDate" class="field-error"></span>
+                        <label asp-for="Type">Type *</label>
+                        <select asp-for="Type" class="form-input">
+                            <option value="Movie">🎬 Movie</option>
+                            <option value="Series">📺 Series</option>
+                        </select>
                     </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="ReleaseDate">Release Date *</label>
+                    <input asp-for="ReleaseDate" type="date" class="form-input" />
+                    <span asp-validation-for="ReleaseDate" class="field-error"></span>
                 </div>
 
                 <div class="form-grid-2">

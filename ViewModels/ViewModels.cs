@@ -59,6 +59,9 @@ namespace CriticsDB.ViewModels
 
         [MaxLength(100)]
         public string? Director { get; set; }
+
+        [Required]
+        public string Type { get; set; } = "Movie";
     }
 
     public class MovieListViewModel
@@ -72,6 +75,7 @@ namespace CriticsDB.ViewModels
         public double AverageRating { get; set; }
         public int RatingCount { get; set; }
         public int ReviewCount { get; set; }
+        public string Type { get; set; } = "Movie";
     }
 
     public class MovieDetailsViewModel
@@ -84,13 +88,14 @@ namespace CriticsDB.ViewModels
         public string? PosterUrl { get; set; }
         public string? TrailerUrl { get; set; }
         public string? Director { get; set; }
+        public string Type { get; set; } = "Movie";
         public double AverageRating { get; set; }
         public int RatingCount { get; set; }
         public List<ReviewViewModel> Reviews { get; set; } = new();
         public int? CurrentUserRating { get; set; }
         public ReviewFormViewModel? ReviewForm { get; set; }
         public bool HasUserReviewed { get; set; }
-        public int[] RatingDistribution { get; set; } = new int[10]; // index 0 = rating 1
+        public int[] RatingDistribution { get; set; } = new int[10];
     }
 
     // Review ViewModels
@@ -118,9 +123,8 @@ namespace CriticsDB.ViewModels
         [Required, MaxLength(2000)]
         public string Comment { get; set; } = string.Empty;
 
-        [Required]
         [Range(1, 10)]
-        public int Rating { get; set; } = 5;
+        public int Rating { get; set; }
     }
 
     // Profile ViewModel

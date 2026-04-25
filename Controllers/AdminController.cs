@@ -77,7 +77,8 @@ namespace CriticsDB.Controllers
             _context.Movies.Add(new Movie
             {
                 Title = vm.Title, Description = vm.Description, Genre = vm.Genre,
-                ReleaseDate = vm.ReleaseDate, PosterUrl = vm.PosterUrl, TrailerUrl = vm.TrailerUrl, Director = vm.Director
+                ReleaseDate = vm.ReleaseDate, PosterUrl = vm.PosterUrl, TrailerUrl = vm.TrailerUrl,
+                Director = vm.Director, Type = vm.Type
             });
             await _context.SaveChangesAsync();
             TempData["Success"] = "Movie added!";
@@ -92,7 +93,8 @@ namespace CriticsDB.Controllers
             return View(new MovieFormViewModel
             {
                 Id = m.Id, Title = m.Title, Description = m.Description, Genre = m.Genre,
-                ReleaseDate = m.ReleaseDate, PosterUrl = m.PosterUrl, TrailerUrl = m.TrailerUrl, Director = m.Director
+                ReleaseDate = m.ReleaseDate, PosterUrl = m.PosterUrl, TrailerUrl = m.TrailerUrl,
+                Director = m.Director, Type = m.Type
             });
         }
 
@@ -103,7 +105,8 @@ namespace CriticsDB.Controllers
             var m = await _context.Movies.FindAsync(vm.Id);
             if (m == null) return NotFound();
             m.Title = vm.Title; m.Description = vm.Description; m.Genre = vm.Genre;
-            m.ReleaseDate = vm.ReleaseDate; m.PosterUrl = vm.PosterUrl; m.TrailerUrl = vm.TrailerUrl; m.Director = vm.Director;
+            m.ReleaseDate = vm.ReleaseDate; m.PosterUrl = vm.PosterUrl; m.TrailerUrl = vm.TrailerUrl;
+            m.Director = vm.Director; m.Type = vm.Type;
             await _context.SaveChangesAsync();
             TempData["Success"] = "Movie updated!";
             return RedirectToAction("Movies");

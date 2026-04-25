@@ -1,0 +1,24 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CriticsDB", "CriticsDB.csproj", "{C1907F32-A483-7086-A4C2-3FA0318C7490}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{C1907F32-A483-7086-A4C2-3FA0318C7490}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C1907F32-A483-7086-A4C2-3FA0318C7490}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C1907F32-A483-7086-A4C2-3FA0318C7490}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C1907F32-A483-7086-A4C2-3FA0318C7490}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D0BF7FFE-BF21-4420-9C9D-128C48C1B75A}
+	EndGlobalSection
+EndGlobal

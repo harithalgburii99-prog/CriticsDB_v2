@@ -95,6 +95,7 @@ CREATE TABLE IF NOT EXISTS Movies (
     PosterUrl TEXT,
     TrailerUrl TEXT,
     Director TEXT,
+    Type TEXT NOT NULL DEFAULT 'Movie',
     CreatedAt TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
@@ -155,6 +156,17 @@ VALUES ('20240101000000_InitialCreate', '8.0.0');
 ";
             await using var cmd = new SqliteCommand(sql, connection);
             await cmd.ExecuteNonQueryAsync();
+
+            // Migrate existing DBs: add Type column if missing
+            await using var checkCmd = new SqliteCommand(
+                "SELECT COUNT(*) FROM pragma_table_info('Movies') WHERE name='Type';", connection);
+            var count = Convert.ToInt32(await checkCmd.ExecuteScalarAsync());
+            if (count == 0)
+            {
+                await using var alterCmd = new SqliteCommand(
+                    "ALTER TABLE Movies ADD COLUMN Type TEXT NOT NULL DEFAULT 'Movie';", connection);
+                await alterCmd.ExecuteNonQueryAsync();
+            }
         }
     }
 }

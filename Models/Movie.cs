@@ -25,12 +25,13 @@ namespace CriticsDB.Models
         [MaxLength(100)]
         public string? Director { get; set; }
 
+        public string Type { get; set; } = "Movie"; // "Movie" or "Series"
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public ICollection<Review> Reviews { get; set; } = new List<Review>();
         public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
 
-        // Calculated
         public double AverageRating =>
             Ratings.Any() ? Math.Round(Ratings.Average(r => r.Value), 1) : 0;
 
