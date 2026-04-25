@@ -1,8 +1,6 @@
 @model UserProfileViewModel
 @{
     ViewData["Title"] = Model.DisplayName + "'s Profile";
-    var isOwnProfile = User.Identity?.IsAuthenticated == true &&
-        (await Html.PartialAsync("_CurrentUserId")).ToString()?.Trim() == Model.Id;
 }
 
 <div class="container page-container">
